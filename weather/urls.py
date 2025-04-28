@@ -17,21 +17,18 @@ Including another URLconf
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LogoutView
-from django.http import HttpResponse
 from django.urls import path
 
-from forecast.views import index
+from forecast.views import index, upload_dataset, statistics_view
 from users.views import register_view, login_view
 
-
-def empty_view(request):
-    return HttpResponse("Пустая страница работает!")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('register/', register_view, name='register'),
     path('login/', login_view, name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
+    path('upload/', upload_dataset, name='upload'),
+    path('statistics/', statistics_view, name='statistics'),
     path('', login_required(index, login_url='/login/'),name='home'),
-    # path('', empty_view)
 ]
