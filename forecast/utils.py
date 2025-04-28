@@ -22,7 +22,6 @@ def process_weather_data(file_path, user):
     # Оставляем только нужные колонки
     df = df[['date', 'temperature', 'pressure', 'humidity', 'precipitation']]
 
-    # Сохранение в базу данных
     WeatherForecast.objects.all().delete()
     for _, row in df.iterrows():
         WeatherForecast.objects.create(
@@ -35,6 +34,8 @@ def process_weather_data(file_path, user):
             description='',
         )
 
+    train_and_predict(df, user)
+
     return df
 
 
@@ -43,6 +44,7 @@ def train_and_predict(df, user):
     df = df.copy()
     df['date'] = pd.to_datetime(df['date'])
     df = df.sort_values('date')
+
 
     # Создание признаков
     df['day_of_year'] = df['date'].dt.dayofyear
@@ -56,6 +58,7 @@ def train_and_predict(df, user):
     # Определение последней даты в данных
     last_date = df['date'].max()
     today = last_date.replace(hour=0, minute=0, second=0, microsecond=0)
+    df = df.dropna()
 
     # Разделение на обучающую выборку
     train = df[df['date'] <= last_date]
@@ -110,17 +113,13 @@ def train_and_predict(df, user):
         forecast_df['precipitation_encoded'].round().astype(int)
     )
 
-    # Удаляем старые прогнозы
-    WeatherForecast.objects.all().delete()
-
     # Сохраняем новые прогнозы
     for _, row in forecast_df.iterrows():
         WeatherForecast.objects.create(
             user=user,
-            forecast_date=row['date'],
+            date=row['date'],
             humidity=0,
             temp=row['temperature'],
-            pressure=row['pressure'],
             precipitation=0,
             location='',
             description='',
