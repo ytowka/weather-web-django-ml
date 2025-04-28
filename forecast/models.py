@@ -12,7 +12,7 @@ class WeatherForecast(models.Model):
         null=True,  # Разрешаем NULL для общих прогнозов
         blank=True
     )
-    date = models.DateField(unique=True)
+    date = models.DateTimeField(unique=True)
     temp = models.FloatField()
     humidity = models.IntegerField()
     precipitation = models.FloatField()
